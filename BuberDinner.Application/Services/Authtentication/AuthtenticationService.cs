@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using BuberDinner.Application.Common.Errors;
 using BuberDinner.Application.Common.Interfaces.Authentication;
 using BuberDinner.Application.Common.Interfaces.Persistence;
-using BuberDinner.Domain;
 using BuberDinner.Domain.Entities;
+using ErrorOr;
+using OneOf;
 
 namespace BuberDinner.Application.Services.Authtentication
 {
@@ -20,18 +18,21 @@ namespace BuberDinner.Application.Services.Authtentication
             _userRepository = userRepository;
         }
 
-        public AuthenticationResult Login(string email, string password)
+        public ErrorOr<AuthenticationResult> Login(string email, string password)
         {
             var user = _userRepository.GetUserByEmail(email);
+            var errors = new List<Error>();
 
             if (user == null)
             {
-                throw new Exception("User with given email does not exist.");
+                // return Errors.Authentication.InvalidCredentials;
+                return Error.Validation(code: "INVALID_CREDENTIALS", description: "Invalid credentials.");
             }
 
             if (user.Password != password)
             {
-                throw new Exception("Invalid password.");
+                // return Errors.Authentication.InvalidCredentials;
+                return Error.Validation(code: "INVALID_CREDENTIALS", description: "Invalid credentials.");
             }
 
             var token = _jwtTokenGenerator.GenerateToken(user);
@@ -39,12 +40,12 @@ namespace BuberDinner.Application.Services.Authtentication
             return new AuthenticationResult(user, token);
         }
 
-        public AuthenticationResult Register(string firstName, string lastName, string email, string password)
+        public ErrorOr<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
         {
             // check if user already exits
             if (_userRepository.GetUserByEmail(email) != null)
             {
-                throw new Exception("User with email " + email + " already exits");
+                return Errors.User.DuplicateEmail;
             }
 
             // create user

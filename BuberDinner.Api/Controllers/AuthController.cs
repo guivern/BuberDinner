@@ -1,12 +1,11 @@
 using BuberDinner.Application.Services.Authtentication;
 using BuberDinner.Contracts.Authentication;
+using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuberDinner.Api.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController : ApiController
     {
         private readonly IAuthenticationService _authenticationSerive;
 
@@ -18,23 +17,41 @@ namespace BuberDinner.Api.Controllers
         [HttpPost("register")]
         public IActionResult Register(RegisterRequest request)
         {
-            var registerResult = _authenticationSerive.Register(request.FirstName, request.LastName, request.Email, request.Password);
+            // var registerResult = _authenticationSerive.Register(request.FirstName, request.LastName, request.Email, request.Password);
 
-            var response = new AuthenticationResponse(
-                registerResult.User.Id, request.FirstName, request.LastName, request.Email, registerResult.Token);
+            // return registerResult.Match<IActionResult>(
+            //     result => Ok(result),
+            //     error => Problem(statusCode: (int) error.StatusCode, title: error.Message)
+            // );
 
-            return Ok(response);
+            ErrorOr<AuthenticationResult> registerResult = _authenticationSerive.Register(request.FirstName, request.LastName, request.Email, request.Password);
+
+            return registerResult.Match<IActionResult>(
+                result => Ok(MapAuthenticationResponse(result)),
+                errors => Problem(errors)
+            );
         }
 
         [HttpPost("login")]
         public IActionResult Login(LoginRequest request)
         {
-            var loginResult = _authenticationSerive.Login(request.Email, request.Password);
+            ErrorOr<AuthenticationResult> loginResult = _authenticationSerive.Login(request.Email, request.Password);
 
-            var response = new AuthenticationResponse(
-                loginResult.User.Id, loginResult.User.FirstName, loginResult.User.LastName, loginResult.User.Email, loginResult.Token);
+            return loginResult.Match<IActionResult>(
+                result => Ok(MapAuthenticationResponse(result)),
+                errors => Problem(errors)
+            );
+        }
 
-            return Ok(response);
+        private AuthenticationResponse MapAuthenticationResponse(AuthenticationResult result)
+        {
+            return new AuthenticationResponse(
+                result.User.Id,
+                result.User.FirstName,
+                result.User.LastName,
+                result.User.Email,
+                result.Token
+            );
         }
     }
 }
