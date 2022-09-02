@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="erroror" Version="1.0.0" />
+    <PackageReference Include="MediatR" Version="10.0.1" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="oneof" Version="3.0.223" />
   </ItemGroup>

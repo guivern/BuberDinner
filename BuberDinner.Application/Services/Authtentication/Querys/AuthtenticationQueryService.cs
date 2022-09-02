@@ -5,14 +5,14 @@ using BuberDinner.Domain.Entities;
 using ErrorOr;
 using OneOf;
 
-namespace BuberDinner.Application.Services.Authtentication
+namespace BuberDinner.Application.Services.Authtentication.Querys
 {
-    public class AuthtenticationService : IAuthenticationService
+    public class AuthtenticationQueryService : IAuthenticationQueryService
     {
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IUserRepository _userRepository;
 
-        public AuthtenticationService(IJwtTokenGenerator jwtTokenGenerator, IUserRepository userRepository)
+        public AuthtenticationQueryService(IJwtTokenGenerator jwtTokenGenerator, IUserRepository userRepository)
         {
             _jwtTokenGenerator = jwtTokenGenerator;
             _userRepository = userRepository;
@@ -35,31 +35,6 @@ namespace BuberDinner.Application.Services.Authtentication
                 return Error.Validation(code: "INVALID_CREDENTIALS", description: "Invalid credentials.");
             }
 
-            var token = _jwtTokenGenerator.GenerateToken(user);
-
-            return new AuthenticationResult(user, token);
-        }
-
-        public ErrorOr<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
-        {
-            // check if user already exits
-            if (_userRepository.GetUserByEmail(email) != null)
-            {
-                return Errors.User.DuplicateEmail;
-            }
-
-            // create user
-            var user = new User
-            {
-                FirstName = firstName,
-                LastName = lastName,
-                Email = email,
-                Password = password
-            };
-
-            _userRepository.Add(user);
-
-            // generate jwt token
             var token = _jwtTokenGenerator.GenerateToken(user);
 
             return new AuthenticationResult(user, token);
