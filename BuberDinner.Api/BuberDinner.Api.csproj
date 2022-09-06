@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="erroror" Version="1.0.0" />
+    <PackageReference Include="Mapster" Version="7.3.0" />
+    <PackageReference Include="Mapster.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="MediatR" Version="10.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="oneof" Version="3.0.223" />
