@@ -1,3 +1,4 @@
+using System.Net;
 using BuberDinner.Application.Common.Interfaces.Authentication;
 using BuberDinner.Application.Common.Interfaces.Persistence;
 using BuberDinner.Application.Services.Authtentication;
@@ -19,19 +20,21 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<Authenticat
 
     public async Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
+        await Task.CompletedTask;
+
         var user = _userRepository.GetUserByEmail(request.Email);
         var errors = new List<Error>();
 
         if (user == null)
         {
             // return Errors.Authentication.InvalidCredentials;
-            return Error.Validation(code: "INVALID_CREDENTIALS", description: "Invalid credentials.");
+            return Error.Custom(code: "INVALID_CREDENTIALS", description: "Invalid credentials.", type: (int)HttpStatusCode.Unauthorized);
         }
 
         if (user.Password != request.Password)
         {
             // return Errors.Authentication.InvalidCredentials;
-            return Error.Validation(code: "INVALID_CREDENTIALS", description: "Invalid credentials.");
+            return Error.Custom(code: "INVALID_CREDENTIALS", description: "Invalid credentials.", type: (int)HttpStatusCode.Unauthorized);
         }
 
         var token = _jwtTokenGenerator.GenerateToken(user);
