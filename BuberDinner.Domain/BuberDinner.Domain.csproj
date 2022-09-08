@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="erroror" Version="1.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
